@@ -1,5 +1,6 @@
 extern crate clap;
 use clap::{App, Arg};
+mod store;
 
 fn main() {
     let key_name = "KEY";
@@ -11,13 +12,13 @@ fn main() {
         .version("v0.1.0")
         .arg(
             Arg::with_name(key_name)
-                .help("Get Value of Key")
+                .help("Get Value of the given Key")
                 .required(false)
                 .index(1),
         )
         .arg(
             Arg::with_name(value_name)
-                .help("Set Value of the Key")
+                .help("Set Value of the given Key")
                 .required(false)
                 .index(2),
         )
@@ -25,31 +26,49 @@ fn main() {
             Arg::with_name(delete_name)
                 .short("d")
                 .long("delete")
-                .help("delete a key-value pair"),
+                .help("Delete a key-value pair"),
         )
         .arg(
             Arg::with_name(show_name)
                 .short("s")
                 .long("show")
-                .help("show all key-value pairs"),
+                .help("Show all key-value pairs"),
         )
         .get_matches();
 
+    let data = store::read();
+
     if matches.occurrences_of(show_name) > 0 {
+        #[cfg(debug_assertions)]
         println!("show!");
+
+        for pair in data.iter() {
+            println!("{}", pair);
+        }
         return;
     }
 
     if matches.occurrences_of(delete_name) > 0 {
+        #[cfg(debug_assertions)]
         println!("delete!");
         return;
     }
 
     if let Some(key) = matches.value_of(key_name) {
-        println!("Key: {}", key);
-    }
+        #[cfg(debug_assertions)]
+        dbg!(key);
 
-    if let Some(value) = matches.value_of(value_name) {
-        println!("Value: {}", value);
+        if let Some(pair) = data.iter().find(|pair| pair.k == key) {
+            #[cfg(debug_assertions)]
+            dbg!(pair);
+
+            println!("{}", pair.v);
+            return;
+        }
+
+        if let Some(value) = matches.value_of(value_name) {
+            #[cfg(debug_assertions)]
+            println!("Set {} to {}", key, value);
+        }
     }
 }
