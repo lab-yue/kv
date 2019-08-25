@@ -7,6 +7,7 @@ fn main() {
     let value_name = "VALUE";
     let delete_name = "DELETE";
     let show_name = "SHOW";
+    let reset_name = "RESET";
 
     let matches = App::new("kv")
         .version("v0.1.0")
@@ -34,23 +35,31 @@ fn main() {
                 .long("show")
                 .help("Show all key-value pairs"),
         )
+        .arg(
+            Arg::with_name(reset_name)
+                .short("r")
+                .long("reset")
+                .help("reset data"),
+        )
         .get_matches();
 
-    let data = store::read();
+    let mut store = store::new();
+
+    if matches.occurrences_of(reset_name) > 0 {
+        #[cfg(debug_assertions)]
+        println!("reset!");
+
+        store.reset();
+        return;
+    }
 
     if matches.occurrences_of(show_name) > 0 {
         #[cfg(debug_assertions)]
         println!("show!");
 
-        for pair in data.iter() {
-            println!("{}", pair);
+        for (k, v) in store.data.iter() {
+            println!("{}: {}", k, v);
         }
-        return;
-    }
-
-    if matches.occurrences_of(delete_name) > 0 {
-        #[cfg(debug_assertions)]
-        println!("delete!");
         return;
     }
 
@@ -58,17 +67,23 @@ fn main() {
         #[cfg(debug_assertions)]
         dbg!(key);
 
-        if let Some(pair) = data.iter().find(|pair| pair.k == key) {
-            #[cfg(debug_assertions)]
-            dbg!(pair);
-
-            println!("{}", pair.v);
-            return;
-        }
-
         if let Some(value) = matches.value_of(value_name) {
             #[cfg(debug_assertions)]
             println!("Set {} to {}", key, value);
+
+            store.set(key, value);
+        } else {
+            #[cfg(debug_assertions)]
+            println!("Lookup {}", key);
+
+            store.get(key);
+
+            if matches.occurrences_of(delete_name) > 0 {
+                #[cfg(debug_assertions)]
+                println!("delete!");
+                store.delete(key);
+                return;
+            }
         }
     }
 }
