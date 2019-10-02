@@ -13,7 +13,7 @@ USAGE:
 FLAGS:
     -d, --delete     Delete a key-value pair
     -r, --reset      reset data
-    -s, --show       Show all key-value pairs
+    -ls, --list      List all key-value pairs
     -h, --help       Prints help information
     -V, --version    Prints version information
 

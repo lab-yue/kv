@@ -31,9 +31,9 @@ fn main() {
         )
         .arg(
             Arg::with_name(show_name)
-                .short("s")
-                .long("show")
-                .help("Show all key-value pairs"),
+                .short("ls")
+                .long("list")
+                .help("List all key-value pairs"),
         )
         .arg(
             Arg::with_name(reset_name)
